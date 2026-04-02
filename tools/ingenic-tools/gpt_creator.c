@@ -437,7 +437,13 @@ u64 parse_size(char *sz)
 {
 	u64 n;
 
-	int l = strlen(sz);
+	int l;
+
+	if (sz == NULL) {
+		return 0;
+	}
+
+	l = strlen(sz);
 
 #ifdef _WIN32
 	n = _strtoui64(sz, 0, 10);

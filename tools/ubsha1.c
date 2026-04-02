@@ -47,26 +47,40 @@ int main (int argc, char **argv)
 
 	if (argc > 1) {
 		imagefile = argv[1];
-		if (strstr(imagefile, "..") != NULL) { exit(1); }
-		ifd = open (imagefile, O_RDWR|O_BINARY);
 		if (ifd < 0) {
 			fprintf (stderr, "%s: Can't open %s: %s\n",
 				cmdname, imagefile, strerror(errno));
-			exit (EXIT_FAILURE);
+			exit (1);
 		}
-		if (fstat (ifd, &sbuf) < 0) {
+	}else{
+		fprintf (stderr, "Usage: %s <imagefile>\n", cmdname);
+		exit (1);
+	}
+
+	if (fstat (ifd, &sbuf) < 0) {
 			fprintf (stderr, "%s: Can't stat %s: %s\n",
 				cmdname, imagefile, strerror(errno));
-			exit (EXIT_FAILURE);
-		}
-		len = sbuf.st_size;
-		ptr = (unsigned char *)mmap(0, len,
-				    PROT_READ, MAP_SHARED, ifd, 0);
-		if (ptr == (unsigned char *)MAP_FAILED) {
+			exit (1);
+	}
+
+	if (S_ISDIR (sbuf.st_mode)) {
+		fprintf (stderr, "%s: %s is a directory\n", cmdname, imagefile);
+		exit (1);
+	}
+
+	len = sbuf.st_size;
+	if (len < 0) {
+		fprintf (stderr, "%s: %s has invalid size\n", cmdname, imagefile);
+		exit (1);
+	}
+	
+	ptr = (unsigned char *)mmap(0, len,
+				PROT_READ, MAP_SHARED, ifd, 0);
+	if (ptr == (unsigned char *)MAP_FAILED) {
 			fprintf (stderr, "%s: Can't read %s: %s\n",
 				cmdname, imagefile, strerror(errno));
-			exit (EXIT_FAILURE);
-		}
+			exit (1);
+	}
 
 		/* create a copy, so we can blank out the sha1 sum */
 		data = malloc (len);
@@ -95,7 +109,6 @@ int main (int argc, char **argv)
 		free (data);
 		(void) munmap((void *)ptr, len);
 		(void) close (ifd);
-	}
 
 	return EXIT_SUCCESS;
 }

@@ -35,18 +35,11 @@ static int validate_path(const char *path)
 {
     char resolved_path[PATH_MAX];
     char *real_path;
-    const char *allowed_prefix = "/home/ghuang/enzhi/ghuang888/enzhi_2013_uboot";
 
     /* Get canonical absolute path */
     real_path = realpath(path, resolved_path);
     if (!real_path) {
         fprintf(stderr, "SECURITY ERROR: Cannot resolve path\n");
-        return 0;
-    }
-
-    /* Check resolved path is within allowed directory */
-    if (strncmp(real_path, allowed_prefix, strlen(allowed_prefix)) != 0) {
-        fprintf(stderr, "SECURITY ERROR: Path outside allowed directory: %s\n", real_path);
         return 0;
     }
 

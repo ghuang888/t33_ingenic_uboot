@@ -671,6 +671,9 @@ int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info)
 	fm_eth->num = num;
 	fm_eth->type = info->type;
 
+	if (!info->rx_port_id || !info->tx_port_id)
+		return 0;
+
 	fm_eth->rx_port = (void *)&reg->port[info->rx_port_id - 1].fm_bmi;
 	fm_eth->tx_port = (void *)&reg->port[info->tx_port_id - 1].fm_bmi;
 

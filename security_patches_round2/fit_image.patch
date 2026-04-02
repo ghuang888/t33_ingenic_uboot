@@ -1,0 +1,20 @@
+--- a/tools/fit_image.c
++++ b/tools/fit_image.c
+@@ -135,6 +135,17 @@ static int fit_handle_file(struct mkimage_params *params)
+ 		snprintf(cmd, sizeof(cmd), "cp %s %s",
+ 			 params->imagefile, tmpfile);
+ 	}
++	/* SECURITY FIX-138: Validate command before execution */
++	{
++		const char *dangerous = ";&|`$\\(";
++		const char *p;
++		for (p = dangerous; *p; p++) {
++			if (strchr(cmd, *p)) {
++				fprintf(stderr, "%s: Dangerous character in command\n", params->cmdname);
++				goto err_system;
++			}
++		}
++	}
+ 	if (system(cmd) == -1) {
+ 		fprintf(stderr, "%s: system(%s) failed: %s\n",
+ 			params->cmdname, cmd, strerror(errno));

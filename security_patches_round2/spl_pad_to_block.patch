@@ -1,0 +1,23 @@
+--- a/tools/ingenic-tools/spl_pad_to_block.c
++++ b/tools/ingenic-tools/spl_pad_to_block.c
+@@ -42,8 +42,17 @@ int main(int argc, char **argv)
+     char *spl_buf = (char *)malloc(BUF_SIZE);
+     memset(spl_buf, 0xff, BUF_SIZE);
+
++	/* SECURITY FIX-46: Validate path to prevent directory traversal */
++	if (strstr(spl_path, "..") != NULL || strchr(spl_path, ';') != NULL ||
++	    strchr(spl_path, '|') != NULL || strchr(spl_path, '&') != NULL) {
++		printf("Invalid path (special characters detected)\n");
++		free(spl_buf);
++		return -1;
++	}
+     FILE *fp = fopen(spl_path, "r+");
+-	assert(fp != NULL);
++	if (!fp) {
++		printf("Failed to open %s\n", spl_path);
++		free(spl_buf);
++		return -1;
++	}
+
+     int len = fread(spl_buf, sizeof(char), BUF_SIZE, fp);
+     if(len <= 0) {

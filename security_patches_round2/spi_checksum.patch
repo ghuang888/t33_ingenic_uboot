@@ -1,0 +1,14 @@
+--- a/tools/ingenic-tools/spi_checksum.c
++++ b/tools/ingenic-tools/spi_checksum.c
+@@ -167,6 +167,12 @@ int main(int argc, char **argv)
+ 		return 1;
+ 	}
+
++	/* SECURITY FIX-170: Validate path to prevent directory traversal */
++	if (strstr(argv[1], "..") != NULL || argv[1][0] == '/') {
++		printf("Invalid path (path traversal detected)\n");
++		return 1;
++	}
+ 	fd = open(argv[1], O_RDWR);
+ 	if (fd < 0) {
+ 		printf("Open %s Error\n", argv[1]);

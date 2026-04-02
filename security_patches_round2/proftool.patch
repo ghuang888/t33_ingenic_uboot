@@ -1,0 +1,18 @@
+--- a/tools/proftool.c
++++ b/tools/proftool.c
+@@ -145,8 +145,16 @@ static int read_map(FILE *fin)
+
+ 		if (func_count == alloced) {
+ 			alloced += 256;
+-			func_list = realloc(func_list,
++			void *tmp_ptr = realloc(func_list,
+ 					sizeof(struct func_info) * alloced);
++			/* SECURITY FIX: Check realloc return value */
++			if (!tmp_ptr) {
++				error("Memory allocation failed\n");
++				return 1;
++			}
++			func_list = tmp_ptr;
+ 			assert(func_list);
+ 		}
+ 		if (!func_count)

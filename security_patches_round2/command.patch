@@ -1,0 +1,13 @@
+--- a/common/command.c
++++ b/common/command.c
+@@ -332,7 +332,9 @@ int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp)
+ 		return 0;	/* not in normal console */
+
+ 	/* copy to secondary buffer which will be affected */
+-	strcpy(tmp_buf, buf);
++	/* SECURITY FIX-335: Use strncpy instead of strcpy to prevent buffer overflow */
++	strncpy(tmp_buf, buf, sizeof(tmp_buf) - 1);
++	tmp_buf[sizeof(tmp_buf) - 1] = '\0';
+
+ 	/* separate into argv */
+ 	argc = make_argv(tmp_buf, sizeof(argv)/sizeof(argv[0]), argv);
